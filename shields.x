@@ -43,13 +43,13 @@ static SCNetworkReachabilityRef reachabilityRef;
 
 %hook GEOResourceManifestServer 
 
--(void)init {
+-(id)init {
     reachabilityRef = SCNetworkReachabilityCreateWithName(NULL, "www.apple.com");
 
     SCNetworkReachabilityContext context = {0, NULL, NULL, NULL, NULL};
     SCNetworkReachabilitySetCallback(reachabilityRef, ReachabilityCallback, &context);
     SCNetworkReachabilityScheduleWithRunLoop(reachabilityRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
-    %orig;
+    return %orig;
 }
 
 %end
@@ -85,15 +85,13 @@ static SCNetworkReachabilityRef reachabilityRef;
 
 -(id)artworkForShieldType:(int)shieldType textLength:(NSUInteger)textLen contentScale:(CGFloat)contentScale resourceNames:(id)resourceNames style:(id)style mode:(NSInteger)mode numberOfLines:(NSUInteger)numOfLines {
     int newShieldID = [[GEOShieldMappingManager sharedManager] translateShieldMap:shieldType];
-    if (newShieldID == 0) return %orig();
-
+    if (newShieldID == 0) return %orig;
     return %orig(newShieldID, textLen, contentScale, resourceNames, style, mode, numOfLines);
 }
 
 -(id)artworkForShieldType:(int)shieldType textLength:(NSUInteger)textLen contentScale:(CGFloat)contentScale resourceNames:(id)resourceNames style:(id)style mode:(NSInteger)mode {
     int newShieldID = [[GEOShieldMappingManager sharedManager] translateShieldMap:shieldType];
     if (newShieldID == 0) return %orig(shieldType, textLen, contentScale, resourceNames, style, mode);
-
     return %orig(newShieldID, textLen, contentScale, resourceNames, style, mode);
 }
 
@@ -102,22 +100,19 @@ static SCNetworkReachabilityRef reachabilityRef;
     // NSLog(@"shield type -> %i", shieldType);
     int newShieldID = [[GEOShieldMappingManager sharedManager] translateShieldMap:shieldType];
     if (newShieldID == 0) return %orig(shieldType, textLen, contentScale, resourceNames, style, size, idiom, numberOfLines);
-    NSLog(@"[MapsX] aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-
+    // NSLog(@"[MapsX] aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     return %orig(newShieldID, textLen, contentScale, resourceNames, style, size, idiom, numberOfLines);
 }
 
 -(id)artworkForShieldType:(int)shieldType textLength:(NSUInteger)textLen contentScale:(CGFloat)contentScale size:(NSUInteger)size idiom:(NSUInteger)idiom mapRect:(SCD_Struct_VK63)mapRect {
     int newShieldID = [[GEOShieldMappingManager sharedManager] translateShieldMap:shieldType];
-    if (newShieldID == 0) return %orig();
-
+    if (newShieldID == 0) return %orig;
     return %orig(newShieldID, textLen, contentScale, size, idiom, mapRect);
 }
 
 -(id)artworkForShieldType:(int)shieldType textLength:(NSUInteger)textLen contentScale:(CGFloat)contentScale size:(NSUInteger)size idiom:(NSUInteger)idiom {
     int newShieldID = [[GEOShieldMappingManager sharedManager] translateShieldMap:shieldType];
-    if (newShieldID == 0) return %orig();
-
+    if (newShieldID == 0) return %orig;
     return %orig(newShieldID, textLen, contentScale, size, idiom);
 }
 %end
@@ -125,27 +120,27 @@ static SCNetworkReachabilityRef reachabilityRef;
 %hook VKIconManager 
 
 -(id)iconForFeatureID:(uint64_t)featureId withResourceNames:(id)resourceNames style:(void*)style {
-    int newIconID = [[GEOShieldMappingManager sharedManager] translateIconMap:featureId];
+    uint64_t newIconID = [[GEOShieldMappingManager sharedManager] translateIconMap:featureId];
     if (newIconID == 0)  {
         // NSLog(@"icid(%llu)", featureId);
-        return %orig();
+        return %orig;
     } 
     return %orig(newIconID, resourceNames, style);
 }
 
 /// iOS 7
 -(id)artworkForFeatureID:(uint64_t)featureId withResourceNames:(id)resourceNames style:(void*)style contentScale:(double)contentScale {
-    int newIconID = [[GEOShieldMappingManager sharedManager] translateIconMap:featureId];
+    uint64_t newIconID = [[GEOShieldMappingManager sharedManager] translateIconMap:featureId];
     if (newIconID == 0)  {
         // NSLog(@"[MapsX] icid(%llu)", featureId);
-        return %orig();
+        return %orig;
     } 
     return %orig(newIconID, resourceNames, style, contentScale);
 }
 
 // -(id)artworkForShieldType:(int)shieldType textLength:(unsigned)textLen contentScale:(float)contentScale resourceNames:(id)resourceNames style:(id)style mode:(int)mode {
 //     int newShieldID = [[GEOShieldMappingManager sharedManager] translateShieldMap:shieldType];
-//     if (newShieldID == 0) return %orig();
+//     if (newShieldID == 0) return %orig;
 
 //     return %orig(newShieldID, textLen, contentScale, resourceNames, style, mode);
 // }
